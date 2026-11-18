@@ -3,94 +3,803 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-
-<title>错题诊断器</title>
+<title>错题诊断器 · 高一 AI 课项目</title>
+<meta name="description" content="给高一学生的错题诊断工具：拍照自动标出知识点与错因，一周后出同型题验证是否真会。">
 <style>
-  :root { --ink:#1a202c; --sub:#5a6472; --line:#e2e8f0; --brand:#2b6cb0; }
+  :root {
+    --ink: #16202c;
+    --sub: #5a6472;
+    --line: #e4eaf1;
+    --brand: #2b6cb0;
+    --brand-d: #1f4e80;
+    --brand-l: #edf5ff;
+    --warn: #c0392b;
+    --warn-l: #fdf3f2;
+    --ok: #2f855a;
+    --bg: #fbfcfe;
+  }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
     margin: 0;
-    font: 16px/1.75 -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
     color: var(--ink);
-    background: #fbfcfe;
+    font: 16px/1.75 -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+          "Microsoft YaHei", "Source Han Sans SC", sans-serif;
     -webkit-text-size-adjust: 100%;
   }
-  .wrap { max-width: 620px; margin: 0 auto; padding: 40px 20px 80px; }
-  .tag { color: var(--brand); font-size: 13px; letter-spacing: 2px; margin-bottom: 16px; }
-  h1 { font-size: 30px; margin: 0 0 10px; letter-spacing: .5px; }
-  .lead { font-size: 17px; color: var(--sub); margin: 0 0 28px; }
-  .card {
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 22px; }
+  a { color: var(--brand); }
+
+  /* ---------- 首屏 ---------- */
+  .hero {
+    background: linear-gradient(180deg, #eef6ff 0%, #fbfcfe 100%);
+    padding: 60px 0 44px;
+  }
+  .kicker {
+    font-size: 12px; letter-spacing: 2.4px; color: var(--brand);
+    font-weight: 600; margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: 38px; line-height: 1.25; margin: 0 0 14px;
+    letter-spacing: .5px; font-weight: 700;
+  }
+  .hero .sub {
+    font-size: 18px; line-height: 1.65; color: var(--sub);
+    margin: 0 0 22px; font-weight: 500;
+  }
+  .hero .claim {
+    font-size: 16px; line-height: 1.85; margin: 0;
+    padding: 18px 20px; background: #fff; border: 1px solid var(--line);
+    border-left: 3px solid var(--brand); border-radius: 0 10px 10px 0;
+  }
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 14px; margin-top: 34px;
+  }
+  .stat {
     background: #fff; border: 1px solid var(--line); border-radius: 12px;
-    padding: 20px; margin-bottom: 14px;
+    padding: 18px 16px;
   }
-  .card h2 {
-    font-size: 13px; margin: 0 0 10px; color: var(--sub);
-    font-weight: 600; letter-spacing: 1.5px;
+  .stat b {
+    display: block; font-size: 28px; line-height: 1.2;
+    color: var(--brand); font-weight: 700;
   }
-  .card p { margin: 0; }
-  ul { margin: 0; padding-left: 20px; }
-  li { margin-bottom: 6px; }
-  li:last-child { margin-bottom: 0; }
-  .no { color: #c53030; }
-  .cta {
-    display: block; text-align: center; background: var(--brand); color: #fff;
-    text-decoration: none; padding: 16px; border-radius: 10px;
-    font-weight: 600; margin: 28px 0 8px;
+  .stat b span { font-size: 13px; font-weight: 500; margin-left: 2px; color: var(--sub); }
+  .stat i {
+    display: block; font-style: normal; font-size: 12px;
+    line-height: 1.55; color: var(--sub); margin-top: 6px;
   }
-  .cta:active { opacity: .85; }
-  .hint { text-align: center; font-size: 13px; color: var(--sub); margin: 0; }
-  .foot { margin-top: 36px; font-size: 13px; color: var(--sub); }
-  .foot a { color: var(--brand); }
+
+  /* ---------- 章节 ---------- */
+  .sec { padding: 52px 0; border-top: 1px solid var(--line); }
+  .sec h2 {
+    font-size: 22px; margin: 0 0 26px; letter-spacing: .3px;
+    display: flex; align-items: baseline; gap: 12px;
+  }
+  .sec h2 .num {
+    font-size: 13px; color: var(--brand); font-weight: 700;
+    letter-spacing: 1.5px; font-variant-numeric: tabular-nums;
+  }
+  .sec h3 { font-size: 16px; margin: 0 0 6px; }
+  .sec p { margin: 0 0 14px; }
+  .muted { color: var(--sub); font-size: 14px; }
+
+  /* ---------- 痛点 ---------- */
+  .pains { list-style: none; padding: 0; margin: 0; }
+  .pains li {
+    position: relative; padding: 12px 0 12px 20px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .pains li:last-child { border-bottom: 0; }
+  .pains li::before {
+    content: ""; position: absolute; left: 0; top: 22px;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--warn);
+  }
+  .pains b { display: block; margin-bottom: 2px; }
+  .pains span { color: var(--sub); font-size: 14.5px; }
+
+  /* ---------- 对比表 ---------- */
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.cmp {
+    width: 100%; border-collapse: collapse; font-size: 14.5px;
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 12px; overflow: hidden;
+  }
+  table.cmp th, table.cmp td {
+    padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  table.cmp thead th {
+    background: #f5f8fc; font-size: 13px; color: var(--sub);
+    font-weight: 600; letter-spacing: .5px; white-space: nowrap;
+  }
+  table.cmp tbody tr:last-child td { border-bottom: 0; }
+  table.cmp td:first-child { color: var(--sub); white-space: nowrap; }
+  table.cmp .me { background: var(--brand-l); font-weight: 600; color: var(--brand-d); }
+  table.cmp thead .me { background: #dbeafe; color: var(--brand-d); }
+
+  /* ---------- 流程图 ---------- */
+  .flow {
+    list-style: none; padding: 0; margin: 0;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px;
+  }
+  .flow li { position: relative; }
+  .flow li:not(:last-child)::after {
+    content: ""; position: absolute; top: 17px; right: -19px;
+    border-left: 7px solid #c5d5e6;
+    border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  }
+  .flow .dot {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--brand-l); color: var(--brand-d);
+    font-size: 14px; font-weight: 700; margin-bottom: 12px;
+    border: 1px solid #cfe0f5;
+  }
+  .flow h3 { font-size: 15px; margin: 0 0 6px; }
+  .flow p { font-size: 13px; line-height: 1.65; color: var(--sub); margin: 0; }
+
+  /* ---------- 手机原型 ---------- */
+  .phones {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+    justify-items: center; margin-top: 8px;
+  }
+  .phone-box { width: 100%; max-width: 270px; }
+  .phone {
+    position: relative; background: #16202c;
+    border-radius: 30px; padding: 9px;
+    box-shadow: 0 16px 40px rgba(22, 32, 44, .16);
+  }
+  .screen {
+    background: #fff; border-radius: 23px; overflow: hidden;
+    aspect-ratio: 9 / 16; display: flex; flex-direction: column;
+  }
+  .hind {
+    height: 13px; display: flex; align-items: center; justify-content: center;
+    flex: none;
+  }
+  .hind::after {
+    content: ""; width: 62px; height: 3px; border-radius: 2px; background: #e3e9f0;
+  }
+  .sbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 14px 4px; font-size: 9px; color: #8a95a3;
+    letter-spacing: .3px;
+  }
+  .sbar em { font-style: normal; }
+  .snav {
+    padding: 4px 14px 10px; font-size: 13px; font-weight: 700;
+    border-bottom: 1px solid #f0f3f7; display: flex;
+    justify-content: space-between; align-items: center;
+  }
+  .snav i { font-style: normal; font-size: 10px; color: #a0aab8; font-weight: 400; }
+  .sbody { padding: 12px 14px; flex: 1; overflow: hidden;
+           display: flex; flex-direction: column; }
+  .thumb {
+    height: 100px; border-radius: 8px; background: repeating-linear-gradient(
+      45deg, #f2f5f9, #f2f5f9 6px, #e8eef5 6px, #e8eef5 12px);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: #9aa6b5; margin-bottom: 10px;
+  }
+  .qtext {
+    font-size: 10px; line-height: 1.7; color: #2d3748;
+    background: #f8fafc; border-radius: 7px; padding: 9px 10px; margin-bottom: 10px;
+  }
+  .tagrow { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 9px; }
+  .tag {
+    font-size: 9px; padding: 2px 7px; border-radius: 20px;
+    background: var(--brand-l); color: var(--brand-d);
+  }
+  .tag.bad { background: var(--warn-l); color: var(--warn); }
+  .conf { font-size: 9px; color: #8a95a3; margin-bottom: 4px; }
+  .bar { height: 4px; border-radius: 3px; background: #eef2f7; overflow: hidden; margin-bottom: 12px; }
+  .bar i { display: block; height: 100%; width: 82%; background: var(--brand); }
+  .btns { display: flex; gap: 7px; margin-top: auto; }
+  .btn-s {
+    flex: 1; text-align: center; font-size: 10px; padding: 7px 0;
+    border-radius: 7px; background: var(--brand); color: #fff; font-weight: 600;
+  }
+  .btn-s.ghost { background: #f1f5f9; color: #5a6472; }
+  .hintbar {
+    font-size: 9px; line-height: 1.55; color: #8a5a12;
+    background: #fdf7e8; border-left: 2px solid #e2b455;
+    border-radius: 4px; padding: 6px 8px; margin-bottom: 12px;
+  }
+  .stat-mini {
+    margin-top: 10px; display: flex; justify-content: space-between;
+    align-items: center; background: #f4f9fe; border-radius: 7px;
+    padding: 7px 9px; font-size: 9px; color: #5a6472;
+  }
+  .stat-mini b { font-size: 13px; color: var(--brand); font-weight: 700; }
+
+  .hbar { margin-bottom: 8px; }
+  .hbar .lbl {
+    display: flex; justify-content: space-between;
+    font-size: 9px; color: #5a6472; margin-bottom: 3px;
+  }
+  .hbar .track { height: 6px; border-radius: 3px; background: #f0f4f9; overflow: hidden; }
+  .hbar .track i { display: block; height: 100%; border-radius: 3px; background: #4a90c9; }
+  .hbar .track i.hot { background: #d15349; }
+  .divider { height: 1px; background: #f0f3f7; margin: 12px 0 10px; }
+  .due-title { font-size: 10px; font-weight: 700; color: #2d3748; margin-bottom: 7px; }
+  .due {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 9px; color: #5a6472; padding: 6px 0;
+    border-bottom: 1px solid #f6f8fb;
+  }
+  .due:last-child { border-bottom: 0; }
+  .due .ck {
+    width: 11px; height: 11px; border-radius: 3px;
+    border: 1px solid #cbd5e0; flex: none;
+  }
+  .phone-cap {
+    text-align: center; font-size: 12px; color: var(--sub);
+    margin-top: 14px; line-height: 1.6;
+  }
+
+  /* ---------- 不做清单 ---------- */
+  .noes {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    margin-top: 4px;
+  }
+  .no-item {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 12px; padding: 16px 18px; position: relative;
+  }
+  .no-item strong {
+    display: block; font-size: 14.5px; margin-bottom: 4px;
+    color: var(--ink); padding-right: 16px;
+  }
+  .no-item strong::after {
+    content: "\00d7"; position: absolute; top: 12px; right: 16px;
+    color: #d9a19a; font-size: 17px; line-height: 1; font-weight: 400;
+  }
+  .no-item p { font-size: 13px; line-height: 1.65; color: var(--sub); margin: 0; }
+
+  /* ---------- 时间轴 ---------- */
+  .timeline { list-style: none; padding: 0; margin: 0; }
+  .timeline li {
+    position: relative; padding: 0 0 22px 28px;
+    border-left: 2px solid var(--line); margin-left: 5px;
+  }
+  .timeline li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  .timeline li::before {
+    content: ""; position: absolute; left: -7px; top: 4px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--line);
+  }
+  .timeline li.done::before { background: var(--ok); border-color: var(--ok); }
+  .timeline li.doing::before { background: var(--brand); border-color: var(--brand); }
+  .timeline .t {
+    font-size: 14.5px; font-weight: 600; margin-bottom: 2px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .timeline .state {
+    font-size: 11px; font-weight: 500; padding: 1px 7px;
+    border-radius: 20px; background: #f1f5f9; color: var(--sub);
+  }
+  .timeline li.done .state { background: #eaf6ef; color: var(--ok); }
+  .timeline li.doing .state { background: var(--brand-l); color: var(--brand-d); }
+  .timeline p { font-size: 13px; color: var(--sub); margin: 0; line-height: 1.6; }
+
+  /* ---------- 反馈表单 ---------- */
+  .formcard {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 16px; padding: 28px 26px;
+    box-shadow: 0 6px 24px rgba(22, 32, 44, .05);
+  }
+  .formcard h2 { margin-top: 0; }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block; font-size: 14px; font-weight: 600;
+    margin-bottom: 6px; color: var(--ink);
+  }
+  .field label em {
+    font-style: normal; font-weight: 400; color: #9aa6b5;
+    font-size: 12.5px; margin-left: 4px;
+  }
+  .field input[type="text"],
+  .field input[type="email"],
+  .field select,
+  .field textarea {
+    width: 100%; padding: 11px 13px; font-size: 15px;
+    font-family: inherit; color: var(--ink);
+    background: #fcfdfe; border: 1px solid #d8e1ea;
+    border-radius: 9px; outline: none; transition: border-color .15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--brand); background: #fff;
+  }
+  .field textarea { min-height: 84px; resize: vertical; line-height: 1.7; }
+  .btn-submit {
+    width: 100%; padding: 15px; font-size: 16px; font-weight: 600;
+    font-family: inherit; color: #fff; background: var(--brand);
+    border: 0; border-radius: 10px; cursor: pointer; transition: background .15s;
+  }
+  .btn-submit:hover { background: var(--brand-d); }
+  .btn-submit:active { transform: translateY(1px); }
+  .form-note {
+    font-size: 12.5px; color: #8a95a3; text-align: center;
+    margin: 12px 0 0; line-height: 1.7;
+  }
+  .alt-way {
+    margin-top: 20px; padding-top: 18px; border-top: 1px dashed var(--line);
+    font-size: 13.5px; color: var(--sub); text-align: center;
+  }
+
+  /* ---------- 技术说明折叠 ---------- */
+  details.tech {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 12px; padding: 0;
+  }
+  details.tech summary {
+    padding: 16px 20px; font-size: 14.5px; font-weight: 600;
+    cursor: pointer; list-style: none; color: var(--ink);
+  }
+  details.tech summary::-webkit-details-marker { display: none; }
+  details.tech summary::after {
+    content: "+"; float: right; color: var(--brand); font-size: 17px;
+    line-height: 1; font-weight: 400;
+  }
+  details.tech[open] summary::after { content: "\2212"; }
+  details.tech .inner {
+    padding: 0 20px 18px; font-size: 14px; line-height: 1.8; color: var(--sub);
+  }
+  details.tech .inner code {
+    background: #f1f5f9; padding: 1px 5px; border-radius: 4px;
+    font-size: 13px; color: var(--brand-d);
+  }
+  details.tech ul { margin: 8px 0 0; padding-left: 20px; }
+
+  /* ---------- 页脚 ---------- */
+  footer {
+    border-top: 1px solid var(--line); padding: 34px 0 56px;
+    text-align: center; font-size: 13px; color: var(--sub);
+  }
+  footer a { text-decoration: none; border-bottom: 1px solid #c9d9e8; }
+  footer p { margin: 6px 0; }
+  footer .copy { color: #a0aab8; font-size: 12px; }
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width: 680px) {
+    .hero { padding: 42px 0 34px; }
+    .hero h1 { font-size: 29px; }
+    .hero .sub { font-size: 16px; }
+    .hero .claim { font-size: 15px; padding: 15px 16px; }
+    .stats { grid-template-columns: 1fr; gap: 10px; margin-top: 26px; }
+    .stat { display: flex; align-items: baseline; gap: 12px; padding: 13px 16px; }
+    .stat b { font-size: 22px; flex: none; }
+    .stat i { margin-top: 0; }
+    .sec { padding: 40px 0; }
+    .sec h2 { font-size: 19px; margin-bottom: 20px; }
+    .flow { grid-template-columns: 1fr; gap: 20px; }
+    .flow li:not(:last-child)::after { display: none; }
+    .flow li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+    .flow .dot { margin-bottom: 0; }
+    .phones { grid-template-columns: 1fr; gap: 34px; }
+    .phone-box { max-width: 270px; }
+    .noes { grid-template-columns: 1fr; }
+    .formcard { padding: 22px 18px; border-radius: 14px; }
+
+    /* 窄屏下对比表转为卡片，避免"本项目"列被藏在横向滚动里 */
+    .table-scroll { overflow: visible; }
+    table.cmp { border: 0; background: transparent; font-size: 14px; }
+    table.cmp thead { display: none; }
+    table.cmp tbody, table.cmp tr, table.cmp td { display: block; width: auto; }
+    table.cmp tr {
+      background: #fff; border: 1px solid var(--line);
+      border-radius: 12px; margin-bottom: 12px; overflow: hidden;
+    }
+    table.cmp td { border: 0; padding: 7px 14px; }
+    table.cmp tbody tr:last-child td { border-bottom: 0; }
+    table.cmp td:first-child {
+      background: #f5f8fc; font-weight: 700; color: var(--ink);
+      padding: 11px 14px; font-size: 14px;
+    }
+    table.cmp td:not(:first-child)::before {
+      content: attr(data-label);
+      display: inline-block; min-width: 84px;
+      color: #9aa6b5; font-size: 12.5px; font-weight: 400;
+    }
+    table.cmp td.me { background: var(--brand-l); color: var(--brand-d); font-weight: 600; }
+    table.cmp td.me::before { color: #7ba2c4; }
+  }
+  @media (max-width: 400px) {
+    .hero h1 { font-size: 26px; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="tag">人大附中 AI 选修课 · 期末项目</div>
-  <h1>错题诊断器</h1>
-  <p class="lead">不是又一个错题本，是一台"错因诊断 + 效果验证"的机器。</p>
+<!-- ============ 首屏 ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">人大附中 AI 选修课 · 期末项目</div>
+    <h1>错题诊断器</h1>
+    <p class="sub">不是又一个错题本，<br>是一台「错因诊断 + 效果验证」的机器。</p>
+    <p class="claim">
+      给高一学生在周测后整理错题时用，解决一件事：<strong>知道错了，但不知道错在哪一类</strong>，下次同类题照样错。
+    </p>
 
-  <div class="card">
-    <h2>为谁解决什么问题</h2>
-    <p>给高一学生在周测后整理错题时用。真正的痛点不是找不到答案，
-       而是<strong>知道错了、但不知道错在哪一类</strong>，下次同类题照样错。</p>
+    <!-- 【换成你的真实数字】：这三个数要来自你的访谈记录，不要编 -->
+    <div class="stats">
+      <div class="stat">
+        <b>15<span>分钟</span></b>
+        <i>手抄一道错题的平均耗时（访谈实测）</i>
+      </div>
+      <div class="stat">
+        <b>5<span>人</span></b>
+        <i>已完成访谈的同学，其中 3 人根本不整理错题</i>
+      </div>
+      <div class="stat">
+        <b>0<span>元</span></b>
+        <i>目前的开发与运行成本</i>
+      </div>
+    </div>
   </div>
+</header>
 
-  <div class="card">
-    <h2>现在怎么解决，哪里不行</h2>
-    <ul>
-      <li>手抄错题本：抄一次约 15 分钟，抄完就合上</li>
-      <li>市面 App：能存能印，但只标"三角函数"这种粗标签，不告诉你错因</li>
-      <li>共同缺陷：<span class="no">没有人为你归类"为什么错"，也没人验证你后来会不会了</span></li>
+<!-- ============ 01 目标用户 ============ -->
+<section class="sec">
+  <div class="wrap">
+    <h2><span class="num">01</span>为谁解决什么问题</h2>
+    <p><strong>目标用户：高一学生本人。</strong>先自己用，再同桌，再本班，暂不考虑外班和初中。</p>
+    <p class="muted">典型场景：周测发下来，卷子上圈了五六个红叉。想整理，但手抄一道要十几分钟，抄到第三道就烦了，最后整个本子只写了两页。</p>
+
+    <h3 style="margin-top:26px">这类场景里的三个真问题</h3>
+    <ul class="pains">
+      <li>
+        <b>不是"找不到答案"，是"不知道错在哪一类"</b>
+        <span>答案和解析到处都有。真正缺的是有人告诉你：这道题你错在分类讨论漏了一种情况，而这类错你犯过四次了。</span>
+      </li>
+      <li>
+        <b>整理的成本高到让人放弃</b>
+        <span>访谈中会整理错题的同学，单题平均耗时 15–20 分钟，且大多只在大考前才做一次。</span>
+      </li>
+      <li>
+        <b>存下来的东西没人再看</b>
+        <span>一位同学的原话：「存了三十多道，一道没重做过。」存了不等于会了，但现在没有任何工具验证这件事。</span>
+      </li>
     </ul>
   </div>
+</section>
 
-  <div class="card">
-    <h2>我打算怎么做</h2>
-    <ul>
-      <li>拍一张错题照片，自动拆成"诊断卡"：题干、知识点、错因</li>
-      <li>按错因统计，画出你的薄弱热力图</li>
-      <li>一周后自动出一道改数字的同型题，验证你到底会不会</li>
-    </ul>
+<!-- ============ 02 现状对比 ============ -->
+<section class="sec">
+  <div class="wrap">
+    <h2><span class="num">02</span>现在怎么解决，哪里不行</h2>
+    <div class="table-scroll">
+      <table class="cmp">
+        <thead>
+          <tr>
+            <th>对比项</th>
+            <th>手抄错题本</th>
+            <th>市面错题 App</th>
+            <th class="me">本项目</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>录入方式</td>
+            <td data-label="手抄错题本">手抄，15–20 分钟/题</td>
+            <td data-label="市面错题 App">拍照，秒级</td>
+            <td class="me" data-label="本项目">拍照，秒级</td>
+          </tr>
+          <tr>
+            <td>分类粒度</td>
+            <td data-label="手抄错题本">自己随手写</td>
+            <td data-label="市面错题 App">粗知识点，如"三角函数"</td>
+            <td class="me" data-label="本项目">知识点 + <strong>错因</strong>双标签</td>
+          </tr>
+          <tr>
+            <td>能否看出薄弱点</td>
+            <td data-label="手抄错题本">翻本子自己数</td>
+            <td data-label="市面错题 App">有统计，但只到知识点</td>
+            <td class="me" data-label="本项目">错因分布图 + 薄弱热力图</td>
+          </tr>
+          <tr>
+            <td>是否验证"后来会不会"</td>
+            <td data-label="手抄错题本">不会</td>
+            <td data-label="市面错题 App">基本不做</td>
+            <td class="me" data-label="本项目">一周后出同型题，记录重做正确率</td>
+          </tr>
+          <tr>
+            <td>核心目标</td>
+            <td data-label="手抄错题本">把题抄下来</td>
+            <td data-label="市面错题 App">把题存起来、印出来</td>
+            <td class="me" data-label="本项目">搞清楚<strong>为什么错</strong>、<strong>后来会不会</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" style="margin-top:14px">市面产品的定位并不差，只是它们把力气花在"存和印"，我们只做它们没做的那一段。</p>
   </div>
+</section>
 
-  <div class="card">
-    <h2>现在做到哪一步</h2>
-    <p>正在做用户访谈，<strong>还没有能用的产品</strong>。这一版只想知道一件事：
-       这个问题对你来说是不是真的存在。</p>
+<!-- ============ 03 初步设想 ============ -->
+<section class="sec">
+  <div class="wrap">
+    <h2><span class="num">03</span>我打算怎么做</h2>
+    <p class="muted" style="margin-bottom:26px">四步，一条主线，没有分支。</p>
+    <ol class="flow">
+      <li>
+        <span class="dot">1</span>
+        <div>
+          <h3>拍照上传</h3>
+          <p>对着错题拍一张，自动压缩到 200KB，8 秒内出结果。</p>
+        </div>
+      </li>
+      <li>
+        <span class="dot">2</span>
+        <div>
+          <h3>生成诊断卡</h3>
+          <p>题干、知识点、错因、置信度，四个字段结构化输出。</p>
+        </div>
+      </li>
+      <li>
+        <span class="dot">3</span>
+        <div>
+          <h3>错因归类</h3>
+          <p>按八类错因统计，画出个人薄弱热力图。</p>
+        </div>
+      </li>
+      <li>
+        <span class="dot">4</span>
+        <div>
+          <h3>一周后验证</h3>
+          <p>出同型题（只改数字），记录重做对错，算出真会率。</p>
+        </div>
+      </li>
+    </ol>
   </div>
+</section>
 
-  
-  <a class="cta" href="https://docs.qq.com/sheet/你的表格ID" target="_blank" rel="noopener">
-    花 1 分钟告诉我你的情况 →
-  </a>
-  <p class="hint">5 个问题，不用留姓名</p>
+<!-- ============ 04 产品效果图 ============ -->
+<section class="sec">
+  <div class="wrap">
+    <h2><span class="num">04</span>做出来长什么样</h2>
+    <p class="muted" style="margin-bottom:26px">以下是界面原型，用 CSS 绘制，不是设计稿渲染图。</p>
 
-  <div class="foot">
-    
-    代码在 <a href="https://github.com/你的用户名/仓库名">GitHub</a>，欢迎围观。
+    <div class="phones">
+
+      <!-- 屏 1：诊断卡 -->
+      <div class="phone-box">
+        <div class="phone">
+          <div class="screen">
+            <div class="sbar"><em>9:41</em><em>5G &#183; 82%</em></div>
+            <div class="snav"><span>诊断卡</span><i>取消</i></div>
+            <div class="sbody">
+              <div class="thumb">原题照片</div>
+              <div class="qtext">
+                已知函数 f(x)=x&#178;&#8722;2ax+1 在区间 [1,2] 上单调递增，求实数 a 的取值范围。
+              </div>
+              <div class="tagrow">
+                <span class="tag">函数单调性</span>
+                <span class="tag bad">分类讨论不全</span>
+              </div>
+              <div class="conf">识别置信度 82%</div>
+              <div class="bar"><i></i></div>
+              <div class="hintbar">这类"留一种情况没讨论"的错，你已经犯过 4 次。</div>
+              <div class="btns">
+                <div class="btn-s">确认</div>
+                <div class="btn-s ghost">改一下</div>
+              </div>
+            </div>
+            <div class="hind"></div>
+          </div>
+        </div>
+        <p class="phone-cap">每道错题拆成一张卡，<br>知识点和错因由你最后确认</p>
+      </div>
+
+      <!-- 屏 2：错因图谱 -->
+      <div class="phone-box">
+        <div class="phone">
+          <div class="screen">
+            <div class="sbar"><em>9:41</em><em>5G &#183; 82%</em></div>
+            <div class="snav"><span>我的薄弱点</span><i>32 题</i></div>
+            <div class="sbody">
+              <div class="hbar">
+                <div class="lbl"><span>分类讨论不全</span><span>9</span></div>
+                <div class="track"><i class="hot" style="width:100%"></i></div>
+              </div>
+              <div class="hbar">
+                <div class="lbl"><span>审题偏差</span><span>7</span></div>
+                <div class="track"><i class="hot" style="width:78%"></i></div>
+              </div>
+              <div class="hbar">
+                <div class="lbl"><span>计算失误</span><span>6</span></div>
+                <div class="track"><i style="width:67%"></i></div>
+              </div>
+              <div class="hbar">
+                <div class="lbl"><span>概念混淆</span><span>4</span></div>
+                <div class="track"><i style="width:44%"></i></div>
+              </div>
+              <div class="hbar">
+                <div class="lbl"><span>公式记错</span><span>2</span></div>
+                <div class="track"><i style="width:22%"></i></div>
+              </div>
+              <div class="divider"></div>
+              <div class="due-title">今日待复习 3 道</div>
+              <div class="due"><span class="ck"></span>函数单调性 · 7 天前录入</div>
+              <div class="due"><span class="ck"></span>基本不等式 · 7 天前录入</div>
+              <div class="due"><span class="ck"></span>三角恒等变换 · 14 天前录入</div>
+              <div class="stat-mini"><span>本周重做正确率</span><b>62%</b></div>
+            </div>
+            <div class="hind"></div>
+          </div>
+        </div>
+        <p class="phone-cap">错因分布 + 到期复习，<br>这才是"回头看"发生的地方</p>
+      </div>
+
+    </div>
   </div>
+</section>
 
-</div>
+<!-- ============ 05 不做什么 ============ -->
+<section class="sec">
+  <div class="wrap">
+    <h2><span class="num">05</span>我明确不做什么</h2>
+    <p class="muted" style="margin-bottom:20px">这部分和"要做什么"同样重要。一个学期做不完所有事，砍掉什么比加上什么更能说明想清楚了。</p>
+    <div class="noes">
+      <div class="no-item">
+        <strong>拍照搜题出答案</strong>
+        <p>2021 年后政策限制，且题库是数十亿题级别的护城河，个人无法竞争。</p>
+      </div>
+      <div class="no-item">
+        <strong>自建题库</strong>
+        <p>需要数月积累，一学期做不完，还涉及版权。</p>
+      </div>
+      <div class="no-item">
+        <strong>擦除手写笔迹</strong>
+        <p>图像处理重活，是成熟产品的核心投入，做了也没有差异化。</p>
+      </div>
+      <div class="no-item">
+        <strong>导出 PDF 组卷打印</strong>
+        <p>市面产品已免费提供，不是本项目的价值所在，留待有余力再说。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 进度 ============ -->
+<section class="sec">
+  <div class="wrap">
+    <h2><span class="num">06</span>现在做到哪一步</h2>
+    <!-- 按实际进度调整 li 的类名：done 已完成 / doing 进行中 / 无类名 未开始 -->
+    <ol class="timeline">
+      <li class="done">
+        <div class="t">课题立项<span class="state">已完成</span></div>
+        <p>确定方向、划定边界、建好代码仓库。</p>
+      </li>
+      <li class="doing">
+        <div class="t">用户访谈<span class="state">进行中</span></div>
+        <p>已完成 5 人访谈，正在整理记录。这一步决定后面所有设计。</p>
+      </li>
+      <li>
+        <div class="t">拍照识别原型<span class="state">待开始</span></div>
+        <p>验证"一张照片能不能被稳定拆成结构化字段"。</p>
+      </li>
+      <li>
+        <div class="t">错因统计与复习队列<span class="state">待开始</span></div>
+        <p>把零散的卡片变成能看出规律的图谱。</p>
+      </li>
+      <li>
+        <div class="t">一周后验证模块<span class="state">待开始</span></div>
+        <p>出同型题、记录重做结果，算出真会率。</p>
+      </li>
+    </ol>
+    <p class="muted" style="margin-top:18px">说明：目前<strong>还没有能用的产品</strong>，这一版页面只想知道一个问题——这个需求对你来说是不是真的存在。</p>
+  </div>
+</section>
+
+<!-- ============ 07 反馈 ============ -->
+<section class="sec">
+  <div class="wrap">
+    <div class="formcard">
+      <h2><span class="num">07</span>告诉我你的情况</h2>
+      <p class="muted" style="margin-bottom:24px">五個问题，一分钟，不用留真名。你的回答会直接决定这个项目接下来做什么。</p>
+
+      <!-- 改这里 ①：把 action 里的邮箱占位换成你的小号邮箱 -->
+      <form action="https://formsubmit.co/9317346@qq.com" method="POST">
+
+        <!-- 隐藏配置项，不用改 -->
+        <input type="hidden" name="_subject" value="【错题诊断器】收到一条新反馈">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="text" name="_honey" style="display:none">
+
+        <div class="field">
+          <label for="f-name">怎么称呼你<em>选填</em></label>
+          <input type="text" id="f-name" name="称呼" placeholder="昵称、外号都行">
+        </div>
+
+        <div class="field">
+          <label for="f-role">你的身份</label>
+          <select id="f-role" name="身份" required>
+            <option value="">请选择</option>
+            <option>高一学生</option>
+            <option>高二 / 高三学生</option>
+            <option>初中生</option>
+            <option>老师</option>
+            <option>家长</option>
+            <option>其他</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-how">你平时怎么整理错题？大概花多久？</label>
+          <textarea id="f-how" name="现在怎么整理" required
+            placeholder="例如：手抄到本子上，一道十几分钟，一般考完试才弄一次。或者：基本不整理，卷子直接扔。"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="f-review">整理完的错题，你会回头看吗？</label>
+          <select id="f-review" name="是否会回头看" required>
+            <option value="">请选择</option>
+            <option>经常看，考前会过一遍</option>
+            <option>偶尔看，想起来才翻</option>
+            <option>基本不看</option>
+            <option>我根本不整理错题</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-useful">如果有个工具拍一下就自动标出错因，对你有用吗？</label>
+          <select id="f-useful" name="有用程度" required>
+            <option value="">请选择</option>
+            <option>很有用，现在就想用</option>
+            <option>可能有用，得看准不准</option>
+            <option>说不好</option>
+            <option>没什么用</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-contact">愿意当第一批试用者吗<em>选填</em></label>
+          <input type="text" id="f-contact" name="联系方式"
+            placeholder="留个微信或 QQ，做出来第一个告诉你">
+        </div>
+
+        <button type="submit" class="btn-submit">提交反馈</button>
+        <p class="form-note">提交后会直接进我的邮箱，不会公开展示。</p>
+      </form>
+
+      <div class="alt-way">
+        打不开表单，或者你有 GitHub 账号？
+        <a href="https://github.com/LittleTiger-zjm/distake_and_correct/issues/new?title=%E5%8F%8D%E9%A6%88%EF%BC%9A&amp;body=%E6%88%91%E7%8E%B0%E5%9C%A8%E6%80%8E%E4%B9%88%E6%95%B4%E7%90%86%E9%94%99%E9%A2%98%EF%BC%9A%0A%0A%E6%95%B4%E7%90%86%E5%AE%8C%E4%BC%9A%E5%9B%9E%E5%A4%B4%E7%9C%8B%E5%90%97%EF%BC%9A%0A%0A%E5%85%B6%E4%BB%96%E6%83%B3%E8%AF%B4%E7%9A%84%EF%BC%9A"
+           target="_blank" rel="noopener">直接在 GitHub 提一条 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 技术说明 ============ -->
+<section class="sec">
+  <div class="wrap">
+    <details class="tech">
+      <summary>它是怎么做出来的（技术说明）</summary>
+      <div class="inner">
+        <ul>
+          <li>页面本身是<strong>单个 HTML 文件</strong>，纯 CSS 绘制，无框架、无外部图片、无 CDN 依赖，加载快且不会因为图片失效变空白。</li>
+          <li>托管在 <code>GitHub Pages</code>，与代码同仓，改完提交即更新。</li>
+          <li>正式版将由静态前端 + 一个 Serverless 函数组成，函数负责隐藏 API Key 并转发请求。</li>
+          <li>识别环节使用多模态大模型，提示词约束它<strong>只做归类、不解题</strong>，并强制返回固定 JSON 结构；知识点必须从预设枚举表中选，避免分类发散。</li>
+          <li>数据先存在浏览器本地，后续迁移到云端数据库，图片不外传第三方图床。</li>
+          <li>表单由 <code>formsubmit.co</code> 转发到邮箱，无需自建后端。</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ 页脚 ============ -->
+<footer>
+  <div class="wrap">
+    <p>代码与进度：<a href="https://github.com/LittleTiger-zjm/distake_and_correct" target="_blank" rel="noopener">github.com/LittleTiger-zjm/distake_and_correct</a></p>
+    <p class="copy">人大附中 AI 选修课 · 期末项目 · 页面持续更新</p>
+  </div>
+</footer>
+
 </body>
 </html>
