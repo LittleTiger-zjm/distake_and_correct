@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>错题诊断器 · 高一 AI 课项目</title>
+<meta name="author" content="张家铭">
 <meta name="description" content="给高一学生的错题诊断工具：拍照自动标出知识点与错因，一周后出同型题验证是否真会。">
 <style>
   :root {
@@ -352,6 +353,54 @@
   }
   details.tech ul { margin: 8px 0 0; padding-left: 20px; }
 
+  /* ---------- 作者与仓库 ---------- */
+  .byline {
+    font-size: 14px; color: var(--sub); margin: -4px 0 20px;
+    letter-spacing: .3px;
+  }
+  .byline b { font-weight: 600; color: var(--ink); letter-spacing: .6px; }
+
+  .authorcard {
+    display: flex; align-items: center; gap: 14px;
+    background: #fff; border: 1px solid var(--line);
+    border-radius: 14px; padding: 18px 20px; margin-bottom: 18px;
+  }
+  .avatar {
+    width: 48px; height: 48px; border-radius: 50%; flex: none;
+    background: linear-gradient(135deg, #e0eefc, #c3daf5);
+    color: var(--brand-d); display: flex; align-items: center;
+    justify-content: center; font-size: 19px; font-weight: 700;
+  }
+  .aname { font-size: 17px; font-weight: 700; letter-spacing: 1px; }
+  .arole { font-size: 13px; color: var(--sub); margin-top: 3px; }
+
+  .meta { margin: 0 0 20px; }
+  .meta > div {
+    display: flex; gap: 16px; padding: 11px 2px;
+    border-bottom: 1px dashed var(--line); font-size: 14.5px;
+  }
+  .meta > div:last-child { border-bottom: 0; }
+  .meta dt { width: 80px; flex: none; color: #9aa6b5; font-size: 13.5px; }
+  .meta dd { margin: 0; word-break: break-word; }
+
+  .repo-btn {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; text-decoration: none; background: #f7fafd;
+    border: 1px solid #d6e3f0; border-radius: 12px;
+    padding: 15px 18px; transition: background .15s, border-color .15s;
+  }
+  .repo-btn:hover { background: var(--brand-l); border-color: #b9d2ea; }
+  .repo-btn .rlabel {
+    display: block; font-size: 11.5px; color: #8a95a3;
+    letter-spacing: 1.4px; margin-bottom: 4px;
+  }
+  .repo-btn .rurl {
+    display: block; font-size: 13.5px; color: var(--brand-d);
+    font-weight: 600; line-height: 1.5;
+    word-break: normal; overflow-wrap: break-word;
+  }
+  .repo-btn .arrow { color: var(--brand); font-size: 18px; flex: none; }
+
   /* ---------- 页脚 ---------- */
   footer {
     border-top: 1px solid var(--line); padding: 34px 0 56px;
@@ -381,6 +430,9 @@
     .phone-box { max-width: 270px; }
     .noes { grid-template-columns: 1fr; }
     .formcard { padding: 22px 18px; border-radius: 14px; }
+    .repo-btn { padding: 14px 16px; }
+    .repo-btn .rurl { font-size: 12.5px; }
+    .repo-btn .arrow { font-size: 15px; }
 
     /* 窄屏下对比表转为卡片，避免"本项目"列被藏在横向滚动里 */
     .table-scroll { overflow: visible; }
@@ -417,6 +469,7 @@
   <div class="wrap">
     <div class="kicker">人大附中 AI 选修课 · 期末项目</div>
     <h1>错题诊断器</h1>
+    <p class="byline">作者：<b>高一二班 张家铭</b></p>
     <p class="sub">不是又一个错题本，<br>是一台「错因诊断 + 效果验证」的机器。</p>
     <p class="claim">
       给高一学生在周测后整理错题时用，解决一件事：<strong>知道错了，但不知道错在哪一类</strong>，下次同类题照样错。
@@ -701,7 +754,7 @@
       <p class="muted" style="margin-bottom:24px">五個问题，一分钟，不用留真名。你的回答会直接决定这个项目接下来做什么。</p>
 
       <!-- 改这里 ①：把 action 里的邮箱占位换成你的小号邮箱 -->
-      <form action="https://formsubmit.co/9317346@qq.com" method="POST">
+      <form action="https://formsubmit.co/YOUR_EMAIL_HERE" method="POST">
 
         <!-- 隐藏配置项，不用改 -->
         <input type="hidden" name="_subject" value="【错题诊断器】收到一条新反馈">
@@ -774,6 +827,37 @@
   </div>
 </section>
 
+<!-- ============ 08 关于这个项目 ============ -->
+<section class="sec" id="about">
+  <div class="wrap">
+    <h2><span class="num">08</span>关于这个项目</h2>
+
+    <div class="authorcard">
+      <div class="avatar">张</div>
+      <div>
+        <div class="aname">张家铭</div>
+        <div class="arole">高一二班 · 人大附中</div>
+      </div>
+    </div>
+
+    <dl class="meta">
+      <div><dt>作者</dt><dd>高一二班 张家铭</dd></div>
+      <div><dt>课程</dt><dd>人大附中 AI 选修课 · 期末项目</dd></div>
+      <div><dt>当前状态</dt><dd>立项与用户访谈阶段，暂无可用产品</dd></div>
+      <div><dt>反馈方式</dt><dd>页面底部表单 / GitHub Issue</dd></div>
+    </dl>
+
+    <a class="repo-btn" href="https://github.com/LittleTiger-zjm/distake_and_correct"
+       target="_blank" rel="noopener">
+      <span>
+        <span class="rlabel">代码仓库 · GITHUB</span>
+        <span class="rurl">github.com/LittleTiger-zjm/distake_and_correct</span>
+      </span>
+      <span class="arrow">&#8594;</span>
+    </a>
+  </div>
+</section>
+
 <!-- ============ 技术说明 ============ -->
 <section class="sec">
   <div class="wrap">
@@ -796,8 +880,9 @@
 <!-- ============ 页脚 ============ -->
 <footer>
   <div class="wrap">
-    <p>代码与进度：<a href="https://github.com/LittleTiger-zjm/distake_and_correct" target="_blank" rel="noopener">github.com/LittleTiger-zjm/distake_and_correct</a></p>
-    <p class="copy">人大附中 AI 选修课 · 期末项目 · 页面持续更新</p>
+    <p><strong>高一二班 张家铭</strong> · 人大附中 AI 选修课期末项目</p>
+    <p>代码仓库：<a href="https://github.com/LittleTiger-zjm/distake_and_correct" target="_blank" rel="noopener">github.com/LittleTiger-zjm/distake_and_correct</a></p>
+    <p class="copy">页面持续更新，最近修改见仓库提交记录</p>
   </div>
 </footer>
 
