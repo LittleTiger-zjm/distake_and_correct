@@ -1,1 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>错题诊断器</title>
+<style>
+  :root { --ink:#1a202c; --sub:#5a6472; --line:#e2e8f0; --brand:#2b6cb0; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.75 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+         color:var(--ink); background:#fbfcfe; }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 40px 20px 80px; }
+  h1 { font-size: 30px; margin: 0 0 8px; letter-spacing: .5px; }
+  .tag { color: var(--brand); font-size: 14px; letter-spacing: 2px; margin-bottom: 18px; }
+  .lead { font-size: 17px; color: var(--sub); margin-bottom: 28px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px;
+          padding:20px; margin-bottom:16px; }
+  .card h2 { font-size:15px; margin:0 0 10px; color:var(--sub); font-weight:600;
+             letter-spacing:1px; }
+  .card p { margin:0; }
+  ul { margin:0; padding-left:20px; }
+  li { margin-bottom:6px; }
+  .cta { display:block; text-align:center; background:var(--brand); color:#fff;
+         text-decoration:none; padding:15px; border-radius:10px; font-weight:600;
+         margin:28px 0 10px; }
+  .hint { text-align:center; font-size:13px; color:var(--sub); }
+  .no { color:#c53030; }
+  code { background:#edf2f7; padding:1px 5px; border-radius:4px; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
 
+  <div class="tag">人大附中 AI 选修课 · 期末项目</div>
+  <h1>错题诊断器</h1>
+  <p class="lead">不是又一个错题本，是一台"错因诊断 + 效果验证"的机器。</p>
+
+  <div class="card">
+    <h2>为谁解决什么问题</h2>
+    <p>给高一学生在周测后整理错题时用。真正的痛点不是找不到答案，
+       而是<strong>知道错了、但不知道错在哪一类</strong>，下次同类题照样错。</p>
+  </div>
+
+  <div class="card">
+    <h2>现在怎么解决，哪里不行</h2>
+    <ul>
+      <li>手抄错题本：抄一次约 15 分钟，抄完就合上</li>
+      <li>市面 App：能存能印，但只标"三角函数"这种粗标签，不告诉你错因</li>
+      <li>共同缺陷：<span class="no">没有人为你归类"为什么错"，也没人验证你后来会不会了</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>我打算怎么做</h2>
+    <ul>
+      <li>拍一张错题照片，自动拆成一张"诊断卡"：题干、知识点、错因</li>
+      <li>按错因统计，画出你的薄弱热力图</li>
+      <li>一周后自动出一道改数字的同型题，验证你到底会不会</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>现在做到哪一步</h2>
+    <p>正在做用户访谈，还没有能用的产品。这一版只想知道一件事：
+       <strong>这个问题对你来说是不是真的存在。</strong></p>
+  </div>
+
+  <a class="cta" href="<你的问卷链接>" target="_blank" rel="noopener">
+    花 1 分钟告诉我你的情况 →
+  </a>
+  <p class="hint">5 个问题，不用留姓名</p>
+
+  <div class="card" style="margin-top:32px">
+    <h2>开发进度</h2>
+    <p>代码在 <a href="<你的 GitHub 链接>">GitHub</a>，欢迎围观。</p>
+  </div>
+
+</div>
+</body>
+</html>
